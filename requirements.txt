@@ -1,0 +1,30 @@
+# Solo para correr los notebooks en un computador (en BigQuery no hace falta:
+# la celda 2 de cada notebook instala lo que le falte a la máquina).
+# Se probaron con Python 3.13. Las versiones fijas son las del trabajo de grado.
+google-cloud-bigquery
+google-cloud-bigquery-storage
+db-dtypes
+pandas-gbq
+pandas
+numpy
+pyarrow
+scipy
+matplotlib
+seaborn
+requests
+ipython
+
+# Mapas y datos geográficos
+geopandas==1.1.1
+shapely
+pyproj
+rasterio==1.4.3
+folium==0.14.0
+branca
+
+# Modelos (12 a 17)
+scikit-learn==1.6.1
+lightgbm==4.6.0
+statsmodels==0.14.6   # la 0.14.4 del trabajo de grado no funciona con scipy 1.16 o más nueva
+shap
+joblib
