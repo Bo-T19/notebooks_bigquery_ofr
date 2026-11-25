@@ -6,7 +6,9 @@ del Observatorio Financiero Rural. Con ellos:
 - **se descargan y se cargan en BigQuery** las tablas de deforestación (grilla, cuatro paneles y panel
   municipal), y se pueden **actualizar** cuando las fuentes publican datos nuevos;
 - **el análisis exploratorio, la segmentación y los modelos** leen de BigQuery, tanto las tablas del
-  Observatorio como las que cargan los notebooks, y dejan sus resultados en tablas.
+  Observatorio como las que cargan los notebooks, y muestran sus resultados en el propio notebook.
+
+En BigQuery solo quedan las **10 tablas de datos** (sección 7).
 
 Cada notebook trae todo su código adentro y explica en cada sección qué hace. **La celda 1 de cada uno ya
 viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas en el dataset
@@ -15,7 +17,8 @@ viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas e
 | Qué | Dónde |
 |---|---|
 | Los 18 notebooks | [`notebooks/`](notebooks/) |
-| Qué es cada tabla que crean y cada una de sus columnas | [`DICCIONARIO_DE_DATOS.md`](DICCIONARIO_DE_DATOS.md) |
+| Qué es cada una de las 10 tablas de datos y cada una de sus columnas | [`DICCIONARIO_DE_DATOS.md`](DICCIONARIO_DE_DATOS.md) |
+| El script que borra las tablas que dejaron las versiones anteriores (se corre una vez) | [`sql/borrar_tablas_viejas.sql`](sql/borrar_tablas_viejas.sql) |
 | Los paquetes, solo para correrlos en un computador | [`requirements.txt`](requirements.txt) |
 
 Los notebooks salen del trabajo de grado *Deforestación y crédito rural en Colombia*
@@ -35,7 +38,8 @@ Los notebooks salen del trabajo de grado *Deforestación y crédito rural en Col
 - Los archivos que se bajan a la máquina (los mapas de Hansen, las capas del IDEAM) son de paso: todo lo que
   importa queda en tablas.
 - **Un notebook no puede ejecutar a otro.** Por eso cada uno es autocontenido y se pasan la información solo por
-  tablas de BigQuery: uno escribe y el siguiente lee. De ahí que el orden importe (sección 4).
+  tablas de BigQuery: uno escribe y el siguiente lee. Las que solo sirven para eso se borran al terminar la
+  cadena. De ahí que el orden importe (sección 4).
 - Los notebooks se pueden **programar** para que corran solos, por ejemplo cada mes.
 
 ---
@@ -102,7 +106,7 @@ final.
 
 | # | Notebook | Qué hace | Escribe |
 |---|---|---|---|
-| 07 | `07_eda_estadisticas_descriptivas` | Estadísticas descriptivas de todas las tablas | `ESTADISTICAS_DESCRIPTIVAS` |
+| 07 | `07_eda_estadisticas_descriptivas` | Estadísticas descriptivas de todas las tablas | — |
 | 08 | `08_eda_catalogo_paneles` | Describe y compara los cuatro paneles, con un mapa de las fuentes | — |
 | 09 | `09_eda_panel_municipal` | Concentración, correlaciones y mapa del panel municipal | — |
 | 10 | `10_eda_sfc414` | Exploración de la tabla SFC 414 | — |
@@ -121,9 +125,12 @@ Del 07 al 11 se pueden correr al mismo tiempo, una vez estén las tablas del 01 
 | 16 | `16_modelos_comparacion` | Compara los tres modelos | 13, 14 y 15 |
 | 17 | `17_modelos_segmentos_y_riesgo` | Cruza los segmentos con el riesgo | 12 y 16 |
 
-Los resultados van al dataset `DATASET_RESULTADOS`, cada uno en una tabla con el prefijo de su notebook
-(`GRADIENT_BOOSTING_METRICAS`, `SEGMENTACION_MUNICIPIOS`, …). Los modelos entrenados no se guardan, porque
-BigQuery guarda tablas y no archivos; correr el notebook los reconstruye iguales, porque todo lo aleatorio
+**En BigQuery solo quedan las tablas de datos** (las del 01 al 06). Los resultados de la segmentación, los
+modelos y la comparación se ven en cada notebook y no se guardan. Como un notebook no puede llamar a otro, los de
+modelos se pasan lo que necesitan por **tablas de paso** en `DATASET_RESULTADOS`: el 16 lee y borra las del 13, el
+14 y el 15, y el 17 lee y borra las del 12 y el 16. Si la cadena se queda a medias, vencen solas a los 7 días.
+Por eso, para volver a correr el 16 hay que correr antes el 13, el 14 y el 15; y para el 17, el 12 y el 16. Los
+modelos entrenados tampoco se guardan: correr el notebook los reconstruye iguales, porque todo lo aleatorio
 parte de una semilla fija.
 
 ### Demo de Landsat
@@ -142,7 +149,7 @@ Ya viene llena con estos valores. Solo hay que cambiarlos si las tablas se pasan
 |---|---|---|
 | `PROYECTO` | `prueba-ofr`: el id del proyecto Prueba-OFR | Todos |
 | `DATASET_DEFORESTACION` | `Cambio_Climatico`: las tablas de deforestación | 01-09 y 12-17 |
-| `DATASET_RESULTADOS` | `Cambio_Climatico`: los resultados. Para tenerlos aparte, se pone otro nombre en los notebooks 07 y 12-18, y el primero que escriba crea el dataset | 07 y 12-18 |
+| `DATASET_RESULTADOS` | `Cambio_Climatico`: donde van las tablas de paso entre los notebooks de modelos, que se borran al terminar. Para tenerlas aparte, se pone otro nombre en los notebooks 12 a 17, y el primero que escriba crea el dataset | 12-17 |
 | `TABLA_FINAGRO` | `prueba-ofr.Inclusion_Financiera.FINAGRO_Desembolsos_EFECTIVA` | 06, 07 |
 | `TABLA_SFC414` | `prueba-ofr.Inclusion_Financiera.SFC414_DASH` | 07, 10 |
 | `TABLA_EVA` | `prueba-ofr.Produccion.eva_full_enriquecido` | 06, 07, 11 |
@@ -180,9 +187,6 @@ entrenamiento de 2021 a 2024, prueba con 2025. Para mover los modelos hacia adel
 `ANIO_FIN` en el 12, todos al mismo valor. Las tablas, gráficas y frases que calculan los notebooks se
 actualizan solas; los textos escritos a mano describen la corrida del trabajo de grado y no cambian.
 
-> Algunas columnas de resultados llevan el año en el nombre (`deforesto_en_2025`, `ha_deforestadas_2021_2025`…)
-> y cambian con estos años. Si hay consultas o tableros que las lean, hay que ajustarlos. El diccionario de
-> datos dice cuáles son.
 
 En el 06, `ANIO_FIN` y `MES_FIN` dicen hasta dónde llega el panel municipal; se mueven cuando las fuentes
 tengan el año o el mes completo.
@@ -195,8 +199,8 @@ el 03 el día 1 de cada mes y el 06 el día 2.
 
 ## 7. Las tablas que quedan
 
-El detalle de cada tabla y de cada columna está en el [diccionario de datos](DICCIONARIO_DE_DATOS.md). En
-resumen, en `DATASET_DEFORESTACION`:
+En BigQuery quedan solo estas 10 tablas, en `DATASET_DEFORESTACION`. El detalle de cada una y de cada columna está
+en el [diccionario de datos](DICCIONARIO_DE_DATOS.md).
 
 | Tabla | Una fila es | Qué trae |
 |---|---|---|
@@ -211,7 +215,8 @@ resumen, en `DATASET_DEFORESTACION`:
 | `MUNICIPIO_CULTIVO_ANIO` | un municipio, cultivo y año | Hectáreas cosechadas según la EVA |
 | `REGISTRO_CARGAS` | una carga | Qué se cargó, de dónde, con qué parámetros y cuándo |
 
-En `DATASET_RESULTADOS` quedan las salidas de los notebooks 07 y 12 a 18, con el prefijo de cada uno.
+Nada más queda en BigQuery: los notebooks 07 a 18 muestran sus resultados y no los guardan. Las tablas de paso
+entre los notebooks de modelos se borran al terminar la cadena (sección 4); el diccionario de datos las lista.
 
 Los límites de los municipios no se guardan en BigQuery, porque el Observatorio ya los tiene. El 01 los
 descarga del DANE para asignar el municipio de cada celda, y el 09 y el 12 los vuelven a descargar para sus
@@ -220,6 +225,14 @@ mapas. Si quedó una tabla `MUNICIPIOS_LIMITES` de una versión anterior, el 01 
 Los nombres de las tablas van en mayúscula. En BigQuery importan las mayúsculas, así que en SQL hay que
 escribirlos igual (`PANEL_IDEAM`, no `panel_ideam`). En BigQuery, la pestaña de esquema de cada tabla muestra
 su descripción; las tablas de deforestación traen además la descripción de cada columna.
+
+### Borrar las tablas que dejaron las versiones anteriores
+
+Las versiones anteriores de los notebooks guardaban sus resultados (unas 75 tablas más). El script
+[`borrar_tablas_viejas.sql`](sql/borrar_tablas_viejas.sql) las borra: se abre una consulta nueva en la consola de BigQuery,
+se pega todo y se ejecuta, una sola vez. Solo borra tablas con esos nombres exactos y no toca ninguna otra
+tabla del dataset. Al final muestra lo que quedó. Si las tablas están en otro dataset, se cambia la primera
+línea del script.
 
 ---
 
@@ -256,6 +269,8 @@ trabajo de grado:
 Con otros años (probar con 2024, entrenando con 2021-2023), la segmentación y toda la cadena de modelos corren
 de principio a fin, así que los años funcionan como parámetro.
 
+Al dejar en BigQuery solo las tablas de datos se volvieron a correr el 16 y el 17, que son los que borran: el 16 guardó sus dos tablas de paso y borró las 22 del 13, el 14 y el 15, y el 17 borró las tres que usó. El script `borrar_tablas_viejas.sql` se probó en el dataset de prueba.
+
 ---
 
 ## 10. Problemas comunes
@@ -273,4 +288,4 @@ de principio a fin, así que los años funcionan como parámetro.
 | El 04 dice que falta el nombre de un periodo | Se agregó un periodo a `IDEAM_PERIODOS` sin su archivo | Agregar el nombre del archivo a `CAPAS_IDEAM` |
 | Un import falla justo después de la celda 2 (por ejemplo, `cannot import name ... from scipy`) | La celda 2 cambió la versión de un paquete que ya estaba cargado | Reiniciar la sesión (Entorno de ejecución → Reiniciar sesión) y correr desde la celda 1 |
 | El 14 o el 15 dicen que la muestra no coincide con la del gradient boosting | Se corrieron con años o datos distintos | Correr el 13 y luego el 14 y el 15 con los mismos años |
-| El 16 o el 17 dicen que faltan tablas | No se han corrido los notebooks anteriores | Correr los que nombra el mensaje |
+| El 16 o el 17 dicen que faltan tablas | No se han corrido los notebooks anteriores, o ya se borraron: el 16 y el 17 borran las tablas de paso al terminar | Correr de nuevo los que nombra el mensaje y después el 16 o el 17 |
