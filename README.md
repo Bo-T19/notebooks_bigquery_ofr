@@ -18,7 +18,6 @@ viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas e
 |---|---|
 | Los 18 notebooks | [`notebooks/`](notebooks/) |
 | Qué es cada una de las 10 tablas de datos y cada una de sus columnas | [`DICCIONARIO_DE_DATOS.md`](DICCIONARIO_DE_DATOS.md) |
-| El script que borra las tablas que dejaron las versiones anteriores (se corre una vez) | [`sql/borrar_tablas_viejas.sql`](sql/borrar_tablas_viejas.sql) |
 | Los paquetes, solo para correrlos en un computador | [`requirements.txt`](requirements.txt) |
 
 Los notebooks salen del trabajo de grado *Deforestación y crédito rural en Colombia*
@@ -226,14 +225,6 @@ Los nombres de las tablas van en mayúscula. En BigQuery importan las mayúscula
 escribirlos igual (`PANEL_IDEAM`, no `panel_ideam`). En BigQuery, la pestaña de esquema de cada tabla muestra
 su descripción; las tablas de deforestación traen además la descripción de cada columna.
 
-### Borrar las tablas que dejaron las versiones anteriores
-
-Las versiones anteriores de los notebooks guardaban sus resultados (unas 75 tablas más). El script
-[`borrar_tablas_viejas.sql`](sql/borrar_tablas_viejas.sql) las borra: se abre una consulta nueva en la consola de BigQuery,
-se pega todo y se ejecuta, una sola vez. Solo borra tablas con esos nombres exactos y no toca ninguna otra
-tabla del dataset. Al final muestra lo que quedó. Si las tablas están en otro dataset, se cambia la primera
-línea del script.
-
 ---
 
 ## 8. Correr un notebook en un computador
@@ -269,7 +260,7 @@ trabajo de grado:
 Con otros años (probar con 2024, entrenando con 2021-2023), la segmentación y toda la cadena de modelos corren
 de principio a fin, así que los años funcionan como parámetro.
 
-Al dejar en BigQuery solo las tablas de datos se volvieron a correr el 16 y el 17, que son los que borran: el 16 guardó sus dos tablas de paso y borró las 22 del 13, el 14 y el 15, y el 17 borró las tres que usó. El script `borrar_tablas_viejas.sql` se probó en el dataset de prueba.
+Al dejar en BigQuery solo las tablas de datos se volvieron a correr el 16 y el 17, que son los que borran: el 16 guardó sus dos tablas de paso y borró las 22 del 13, el 14 y el 15, y el 17 borró las tres que usó.
 
 ---
 
