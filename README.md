@@ -12,7 +12,7 @@ En BigQuery solo quedan las **10 tablas de datos** (sección 7).
 
 Cada notebook trae todo su código adentro y explica en cada sección qué hace. **La celda 1 de cada uno ya
 viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas en el dataset
-`Cambio_Climatico`..
+`Cambio_Climatico`.
 
 | Qué | Dónde |
 |---|---|
@@ -20,8 +20,6 @@ viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas e
 | Qué es cada una de las 10 tablas de datos y cada una de sus columnas | [`DICCIONARIO_DE_DATOS.md`](DICCIONARIO_DE_DATOS.md) |
 | Los paquetes, solo para correrlos en un computador | [`requirements.txt`](requirements.txt) |
 
-Los notebooks salen del trabajo de grado *Deforestación y crédito rural en Colombia*
-([repositorio](https://github.com/Bo-T19/trabajo_de_grado_ofr)), que tiene el análisis completo y el documento.
 
 ---
 
