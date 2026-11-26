@@ -12,7 +12,7 @@ En BigQuery solo quedan las **10 tablas de datos** (sección 7).
 
 Cada notebook trae todo su código adentro y explica en cada sección qué hace. **La celda 1 de cada uno ya
 viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas en el dataset
-`Cambio_Climatico`. Lo único que falta poner es la API key de Global Forest Watch en el 03 y el 18.
+`Cambio_Climatico`..
 
 | Qué | Dónde |
 |---|---|
