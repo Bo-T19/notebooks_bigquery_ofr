@@ -1,15 +1,14 @@
 # Diccionario de datos
 
-En BigQuery solo quedan **10 tablas**, las de datos, que arman los notebooks 01 a 06. Aquí está qué es cada una y
+En BigQuery solo quedan **9 tablas**, las de datos, que arman los notebooks 01 a 06. Aquí está qué es cada una y
 cada una de sus columnas.
 
 - **Dónde quedan.** En `DATASET_DEFORESTACION`; por defecto, `Cambio_Climatico`, en el proyecto `prueba-ofr`.
 - **Los notebooks 07 a 18 no dejan tablas.** Sus resultados (estadísticas, segmentos, modelos, comparación,
   demo de Landsat) se ven en el propio notebook.
 - **Los nombres van en mayúscula.** En BigQuery importan las mayúsculas: en SQL se escriben igual
-  (`PANEL_IDEAM`, no `panel_ideam`).
-- **Las tablas se reemplazan enteras** cada vez que se corre el notebook que las escribe. La única que crece es
-  `REGISTRO_CARGAS`, que guarda una fila por carga.
+  (`DEFORESTACION_IDEAM_CELDA_5KM_PERIODO`, no `deforestacion_ideam_celda_5km_periodo`).
+- **Las tablas se reemplazan enteras** cada vez que se corre el notebook que las escribe.
 - **`orden_fila`.** Todas las tablas la tienen, y por eso no se repite abajo. Es la posición de la fila en la
   tabla que armó el notebook: BigQuery no guarda el orden de las filas. Para leer una tabla en su orden,
   `ORDER BY orden_fila`.
@@ -22,23 +21,22 @@ cada una de sus columnas.
 
 | Tabla | Notebook | Una fila es |
 |---|---|---|
-| [`GRILLA`](#grilla) | 01 | una celda de 5 × 5 km |
-| [`BOSQUE_BASE`](#bosque_base) | 02 | una celda |
-| [`PANEL_HANSEN`](#panel_hansen) | 02 | una celda en un año |
-| [`PANEL_DEFORESTACION_COLOMBIA`](#panel_deforestacion_colombia) | 03 | una celda en un mes |
-| [`PANEL_IDEAM`](#panel_ideam) | 04 | una celda en un periodo de dos años |
-| [`PANEL_DTD`](#panel_dtd) | 05 | una celda en un trimestre |
-| [`MUNICIPIO_ANIO`](#municipio_anio) | 06 | un municipio en un año |
-| [`MUNICIPIO_MES`](#municipio_mes) | 06 | un municipio en un mes |
-| [`MUNICIPIO_CULTIVO_ANIO`](#municipio_cultivo_anio) | 06 | un municipio, un cultivo y un año |
-| [`REGISTRO_CARGAS`](#registro_cargas) | 01 a 06 | una carga de una tabla |
+| [`GRILLA_CELDAS_5KM`](#grilla) | 01 | una celda de 5 × 5 km |
+| [`BOSQUE_BASE_HANSEN_CELDA_5KM`](#bosque_base_hansen_celda_5km) | 02 | una celda |
+| [`PERDIDA_COBERTURA_HANSEN_CELDA_5KM_ANIO`](#perdida_cobertura_hansen_celda_5km_anio) | 02 | una celda en un año |
+| [`ALERTAS_GFW_CELDA_5KM_MES`](#alertas_gfw_celda_5km_mes) | 03 | una celda en un mes |
+| [`DEFORESTACION_IDEAM_CELDA_5KM_PERIODO`](#deforestacion_ideam_celda_5km_periodo) | 04 | una celda en un periodo de dos años |
+| [`DETECCIONES_TEMPRANAS_IDEAM_CELDA_5KM_TRIMESTRE`](#detecciones_tempranas_ideam_celda_5km_trimestre) | 05 | una celda en un trimestre |
+| [`DEFORESTACION_CREDITO_PRODUCCION_MUNICIPIO_ANIO`](#deforestacion_credito_produccion_municipio_anio) | 06 | un municipio en un año |
+| [`ALERTAS_GFW_CREDITO_MUNICIPIO_MES`](#alertas_gfw_credito_municipio_mes) | 06 | un municipio en un mes |
+| [`AREA_COSECHADA_EVA_MUNICIPIO_CULTIVO_ANIO`](#area_cosechada_eva_municipio_cultivo_anio) | 06 | un municipio, un cultivo y un año |
 
 
 
 ## 01 a 06 · Carga de las tablas de deforestación
 
 
-### GRILLA
+### GRILLA_CELDAS_5KM
 
 Grilla de celdas de 5 x 5 km sobre Colombia, alineada con el origen de EPSG:3116. Es la unidad de todas las tablas de deforestación. Fuente de los límites: DANE, Marco Geoestadístico Nacional 2023 (departamentos) y 2025 (municipios), CC BY 4.0.
 
@@ -57,7 +55,7 @@ Grilla de celdas de 5 x 5 km sobre Colombia, alineada con el origen de EPSG:3116
 | `cod_dane` | STRING | Código DANE de 5 dígitos del municipio donde cae el centro (DANE, MGN 2025). Vacío si el centro cae fuera de todo municipio. |
 | `municipio` | STRING | Nombre del municipio, solo para leer. Para cruzar con otras tablas usa cod_dane. |
 
-### BOSQUE_BASE
+### BOSQUE_BASE_HANSEN_CELDA_5KM
 
 Bosque al empezar el análisis, por celda de la grilla, según Hansen GFC-2025-v1.13: píxeles con dosel de al menos 30 % en 2000 y sin pérdida hasta 2019, reproyectados a 25 m. Es el denominador común de los paneles de deforestación.
 
@@ -65,10 +63,10 @@ Bosque al empezar el análisis, por celda de la grilla, según Hansen GFC-2025-v
 
 | Columna | Tipo | Qué es |
 |---|---|---|
-| `cell_id` | STRING | Identificador de la celda (tabla grilla). |
+| `cell_id` | STRING | Identificador de la celda (tabla GRILLA_CELDAS_5KM). |
 | `bosque_base_ha` | FLOAT | Hectáreas de bosque al empezar 2020, según Hansen. |
 
-### PANEL_HANSEN
+### PERDIDA_COBERTURA_HANSEN_CELDA_5KM_ANIO
 
 Pérdida anual de cobertura arbórea por celda de 5 km, según Hansen GFC-2025-v1.13. Mide pérdida de dosel por cualquier causa, no deforestación oficial: sobre Colombia equivale a 1,5-2,5 veces la cifra del IDEAM. Solo celdas con al menos 50 ha de bosque base.
 
@@ -76,17 +74,17 @@ Pérdida anual de cobertura arbórea por celda de 5 km, según Hansen GFC-2025-v
 
 | Columna | Tipo | Qué es |
 |---|---|---|
-| `cell_id` | STRING | Identificador de la celda (tabla grilla). |
+| `cell_id` | STRING | Identificador de la celda (tabla GRILLA_CELDAS_5KM). |
 | `anio` | INTEGER | Año de la pérdida (año calendario). |
 | `perdida_ha` | FLOAT | Hectáreas que perdieron el dosel ese año, entre las que tenían al menos 30 % de dosel en 2000. |
 | `lon` | FLOAT | Longitud del centro de la celda. |
 | `lat` | FLOAT | Latitud del centro de la celda. |
 | `departamento` | STRING | Departamento del centro de la celda. |
-| `bosque_base_ha` | FLOAT | Bosque al empezar el análisis (tabla bosque_base). Es el denominador de esta tabla. |
+| `bosque_base_ha` | FLOAT | Bosque al empezar el análisis (tabla BOSQUE_BASE_HANSEN_CELDA_5KM). Es el denominador de esta tabla. |
 | `cod_dane` | STRING | Código DANE del municipio del centro de la celda. |
 | `municipio` | STRING | Nombre del municipio, solo para leer. |
 
-### PANEL_DEFORESTACION_COLOMBIA
+### ALERTAS_GFW_CELDA_5KM_MES
 
 Alertas de disturbio de la vegetación de Global Forest Watch (gfw_integrated_alerts, confianza high y highest) por celda de 5 km y mes, 2020-01 a 2026-07. No es deforestación oficial: no distingue la causa. Solo celdas con al menos 50 ha de bosque base.
 
@@ -94,12 +92,12 @@ Alertas de disturbio de la vegetación de Global Forest Watch (gfw_integrated_al
 
 | Columna | Tipo | Qué es |
 |---|---|---|
-| `cell_id` | STRING | Identificador de la celda (tabla grilla). |
+| `cell_id` | STRING | Identificador de la celda (tabla GRILLA_CELDAS_5KM). |
 | `periodo` | DATETIME | Primer día del mes. |
 | `area_def_ha` | FLOAT | Hectáreas con alerta de alta confianza en el mes. |
 | `lon` | FLOAT | Longitud del centro de la celda. |
 | `lat` | FLOAT | Latitud del centro de la celda. |
-| `bosque_base_ha` | FLOAT | Bosque al empezar el análisis, según Hansen (tabla bosque_base). |
+| `bosque_base_ha` | FLOAT | Bosque al empezar el análisis, según Hansen (tabla BOSQUE_BASE_HANSEN_CELDA_5KM). |
 | `departamento` | STRING | Departamento del centro de la celda. |
 | `def_acum_ha` | FLOAT | Hectáreas con alerta acumuladas desde el primer mes hasta este, incluido. |
 | `bosque_remanente_ha` | FLOAT | Bosque base menos lo perdido antes de este mes. Denominador de tasa_def. |
@@ -114,7 +112,7 @@ Alertas de disturbio de la vegetación de Global Forest Watch (gfw_integrated_al
 | `cod_dane` | STRING | Código DANE del municipio del centro de la celda. |
 | `municipio` | STRING | Nombre del municipio, solo para leer. |
 
-### PANEL_IDEAM
+### DEFORESTACION_IDEAM_CELDA_5KM_PERIODO
 
 Deforestación oficial por celda de 5 km y periodo, según las capas de cambio de la superficie cubierta por bosque natural del IDEAM (SMByC). Cada periodo compara dos años y su cifra corresponde al año final. Solo celdas con al menos 50 ha de bosque base.
 
@@ -122,7 +120,7 @@ Deforestación oficial por celda de 5 km y periodo, según las capas de cambio d
 
 | Columna | Tipo | Qué es |
 |---|---|---|
-| `cell_id` | STRING | Identificador de la celda (tabla grilla). |
+| `cell_id` | STRING | Identificador de la celda (tabla GRILLA_CELDAS_5KM). |
 | `periodo` | STRING | Transición entre dos años, p. ej. 2020-2021; la cifra corresponde al año final. |
 | `bosque_estable_ha` | FLOAT | Hectáreas que siguieron siendo bosque natural (clase 1). |
 | `def_ha` | FLOAT | Hectáreas de bosque natural deforestadas en el periodo (clase 2). |
@@ -134,11 +132,11 @@ Deforestación oficial por celda de 5 km y periodo, según las capas de cambio d
 | `lon` | FLOAT | Longitud del centro de la celda. |
 | `lat` | FLOAT | Latitud del centro de la celda. |
 | `departamento` | STRING | Departamento del centro de la celda. |
-| `bosque_base_ha` | FLOAT | Bosque según Hansen (tabla bosque_base); no es el denominador de esta tabla. |
+| `bosque_base_ha` | FLOAT | Bosque según Hansen (tabla BOSQUE_BASE_HANSEN_CELDA_5KM); no es el denominador de esta tabla. |
 | `cod_dane` | STRING | Código DANE del municipio del centro de la celda. |
 | `municipio` | STRING | Nombre del municipio, solo para leer. |
 
-### PANEL_DTD
+### DETECCIONES_TEMPRANAS_IDEAM_CELDA_5KM_TRIMESTRE
 
 Detecciones tempranas de deforestación del IDEAM (SMByC) por celda de 5 km y trimestre. Cuenta puntos, no hectáreas, y los conteos NO son comparables entre trimestres: sirve para priorizar lugares dentro de un mismo trimestre. Solo celdas con al menos 50 ha de bosque base.
 
@@ -146,7 +144,7 @@ Detecciones tempranas de deforestación del IDEAM (SMByC) por celda de 5 km y tr
 
 | Columna | Tipo | Qué es |
 |---|---|---|
-| `cell_id` | STRING | Identificador de la celda (tabla grilla). |
+| `cell_id` | STRING | Identificador de la celda (tabla GRILLA_CELDAS_5KM). |
 | `periodo` | DATETIME | Primer día del trimestre. |
 | `trimestre_txt` | STRING | Trimestre en texto, p. ej. 2024-T3. |
 | `anio` | INTEGER | Año. |
@@ -157,11 +155,11 @@ Detecciones tempranas de deforestación del IDEAM (SMByC) por celda de 5 km y tr
 | `lon` | FLOAT | Longitud del centro de la celda. |
 | `lat` | FLOAT | Latitud del centro de la celda. |
 | `departamento` | STRING | Departamento del centro de la celda. |
-| `bosque_base_ha` | FLOAT | Bosque según Hansen (tabla bosque_base). |
+| `bosque_base_ha` | FLOAT | Bosque según Hansen (tabla BOSQUE_BASE_HANSEN_CELDA_5KM). |
 | `cod_dane` | STRING | Código DANE del municipio del centro de la celda. |
 | `municipio` | STRING | Nombre del municipio, solo para leer. |
 
-### MUNICIPIO_ANIO
+### DEFORESTACION_CREDITO_PRODUCCION_MUNICIPIO_ANIO
 
 Panel municipal por año (2020-2025): deforestación (IDEAM y GFW), crédito de FINAGRO, cultivos de la EVA, ganado del ICA y atributos del municipio. Es la tabla de la segmentación y los modelos.
 
@@ -198,7 +196,7 @@ Panel municipal por año (2020-2025): deforestación (IDEAM y GFW), crédito de 
 | `ruralidad` | STRING | Categoría de ruralidad del DNP (tabla de municipios del Observatorio). |
 | `tasa_def_ideam` | FLOAT | def_ideam_ha / bosque_ideam_ha: fracción del bosque natural deforestada en el año. |
 
-### MUNICIPIO_MES
+### ALERTAS_GFW_CREDITO_MUNICIPIO_MES
 
 Panel municipal por mes (2020-01 a 2026-06): alertas de GFW y crédito de FINAGRO.
 
@@ -218,7 +216,7 @@ Panel municipal por mes (2020-01 a 2026-06): alertas de GFW y crédito de FINAGR
 | `credito_palma_produccion_mm` | FLOAT | Crédito de producción a la palma de aceite, en millones de pesos. |
 | `region` | STRING | Región (tabla de municipios del Observatorio). |
 
-### MUNICIPIO_CULTIVO_ANIO
+### AREA_COSECHADA_EVA_MUNICIPIO_CULTIVO_ANIO
 
 Hectáreas cosechadas por municipio, cultivo y año según la EVA, desde 2019.
 
@@ -231,21 +229,6 @@ Hectáreas cosechadas por municipio, cultivo y año según la EVA, desde 2019.
 | `grupo_cultivo` | STRING | Grupo de cultivo de la EVA. |
 | `cultivo` | STRING | Cultivo de la EVA. |
 | `cosechada_ha` | FLOAT | Hectáreas cosechadas en el año (semestres sumados). |
-
-### REGISTRO_CARGAS
-
-Bitácora de las cargas: cada vez que los notebooks 01 a 06 escriben una tabla de deforestación, dejan aquí una fila con qué cargaron, de dónde y cuándo. No se borra: se le van agregando filas.
-
-**Una fila es** una carga de una tabla. **La escribe** el notebook 01 a 06, en `DATASET_DEFORESTACION`. Filas en la corrida de prueba: 24.
-
-| Columna | Tipo | Qué es |
-|---|---|---|
-| `tabla` | STRING | Tabla que se cargó. |
-| `filas` | INTEGER | Filas que quedaron en la tabla. |
-| `fuente` | STRING | Fuente de los datos (por ejemplo, la versión de Hansen o el servicio del DANE). |
-| `parametros` | STRING | Parámetros de la carga, en JSON (años, versión, tamaño de celda…). |
-| `notebook` | STRING | Notebook que hizo la carga. |
-| `cargado_en` | TIMESTAMP | Fecha y hora de la carga (UTC). |
 
 ## Tablas de paso
 

@@ -8,7 +8,7 @@ del Observatorio Financiero Rural. Con ellos:
 - **el análisis exploratorio, la segmentación y los modelos** leen de BigQuery, tanto las tablas del
   Observatorio como las que cargan los notebooks, y muestran sus resultados en el propio notebook.
 
-En BigQuery solo quedan las **10 tablas de datos** (sección 7).
+En BigQuery solo quedan las **9 tablas de datos** (sección 7).
 
 Cada notebook trae todo su código adentro y explica en cada sección qué hace. **La celda 1 de cada uno ya
 viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas en el dataset
@@ -17,7 +17,7 @@ viene llena** para el proyecto del Observatorio (`prueba-ofr`), con las tablas e
 | Qué | Dónde |
 |---|---|
 | Los 18 notebooks | [`notebooks/`](notebooks/) |
-| Qué es cada una de las 10 tablas de datos y cada una de sus columnas | [`DICCIONARIO_DE_DATOS.md`](DICCIONARIO_DE_DATOS.md) |
+| Qué es cada una de las 9 tablas de datos y cada una de sus columnas | [`DICCIONARIO_DE_DATOS.md`](DICCIONARIO_DE_DATOS.md) |
 | Los paquetes, solo para correrlos en un computador | [`requirements.txt`](requirements.txt) |
 
 
@@ -86,15 +86,14 @@ Cada notebook empieza con un recuadro que dice qué lee, qué escribe, qué hay 
 
 | # | Notebook | Qué hace | Escribe | Cuándo volver a correrlo | Tarda |
 |---|---|---|---|---|---|
-| 01 | `01_carga_grilla_y_municipios` | La grilla de 5 km y el municipio de cada celda (DANE) | `GRILLA` | Una vez | 2 min |
-| 02 | `02_carga_hansen` | Bosque base y pérdida anual de Hansen | `BOSQUE_BASE`, `PANEL_HANSEN` | Una vez al año, con cada versión de Hansen | 20 min |
-| 03 | `03_carga_alertas_gfw` | Alertas de GFW por celda y mes | `PANEL_DEFORESTACION_COLOMBIA` | Cada mes | 10-20 min |
-| 04 | `04_carga_ideam_cambio` | Deforestación oficial del IDEAM por celda y periodo | `PANEL_IDEAM` | Una vez al año, cuando el IDEAM publica | 10 min |
-| 05 | `05_carga_ideam_dtd` | Detecciones tempranas del IDEAM por celda y trimestre | `PANEL_DTD` | Cada trimestre | 5 min |
-| 06 | `06_carga_panel_municipal` | Cruza la deforestación con FINAGRO, EVA e ICA por municipio | `MUNICIPIO_ANIO`, `MUNICIPIO_MES`, `MUNICIPIO_CULTIVO_ANIO` | Después de cualquier actualización | 5 min |
+| 01 | `01_carga_grilla_y_municipios` | La grilla de 5 km y el municipio de cada celda (DANE) | `GRILLA_CELDAS_5KM` | Una vez | 2 min |
+| 02 | `02_carga_hansen` | Bosque base y pérdida anual de Hansen | `BOSQUE_BASE_HANSEN_CELDA_5KM`, `PERDIDA_COBERTURA_HANSEN_CELDA_5KM_ANIO` | Una vez al año, con cada versión de Hansen | 20 min |
+| 03 | `03_carga_alertas_gfw` | Alertas de GFW por celda y mes | `ALERTAS_GFW_CELDA_5KM_MES` | Cada mes | 10-20 min |
+| 04 | `04_carga_ideam_cambio` | Deforestación oficial del IDEAM por celda y periodo | `DEFORESTACION_IDEAM_CELDA_5KM_PERIODO` | Una vez al año, cuando el IDEAM publica | 10 min |
+| 05 | `05_carga_ideam_dtd` | Detecciones tempranas del IDEAM por celda y trimestre | `DETECCIONES_TEMPRANAS_IDEAM_CELDA_5KM_TRIMESTRE` | Cada trimestre | 5 min |
+| 06 | `06_carga_panel_municipal` | Cruza la deforestación con FINAGRO, EVA e ICA por municipio | `DEFORESTACION_CREDITO_PRODUCCION_MUNICIPIO_ANIO`, `ALERTAS_GFW_CREDITO_MUNICIPIO_MES`, `AREA_COSECHADA_EVA_MUNICIPIO_CULTIVO_ANIO` | Después de cualquier actualización | 5 min |
 
-Las tablas van al dataset `DATASET_DEFORESTACION`. Cada carga deja además una fila en la tabla
-`REGISTRO_CARGAS`: qué tabla, cuántas filas, de qué fuente, con qué parámetros y cuándo.
+Las tablas van al dataset `DATASET_DEFORESTACION`.
 
 El orden importa: el 01 va primero; el 02 antes del 03, el 04 y el 05 (les da el bosque base); y el 06 al
 final.
@@ -196,21 +195,20 @@ el 03 el día 1 de cada mes y el 06 el día 2.
 
 ## 7. Las tablas que quedan
 
-En BigQuery quedan solo estas 10 tablas, en `DATASET_DEFORESTACION`. El detalle de cada una y de cada columna está
+En BigQuery quedan solo estas 9 tablas, en `DATASET_DEFORESTACION`. El detalle de cada una y de cada columna está
 en el [diccionario de datos](DICCIONARIO_DE_DATOS.md).
 
 | Tabla | Una fila es | Qué trae |
 |---|---|---|
-| `GRILLA` | una celda de 5 km | Identificador, centro, departamento y municipio |
-| `BOSQUE_BASE` | una celda | Bosque al empezar el análisis, según Hansen |
-| `PANEL_DEFORESTACION_COLOMBIA` | una celda en un mes | Alertas de GFW, bosque remanente, tasa, rezagos |
-| `PANEL_HANSEN` | una celda en un año | Pérdida de cobertura arbórea de Hansen |
-| `PANEL_IDEAM` | una celda en un periodo | Deforestación oficial y demás clases de cambio del IDEAM |
-| `PANEL_DTD` | una celda en un trimestre | Detecciones tempranas del IDEAM |
-| `MUNICIPIO_ANIO` | un municipio en un año | Deforestación, crédito, cultivos, ganado y atributos |
-| `MUNICIPIO_MES` | un municipio en un mes | Alertas de GFW y crédito |
-| `MUNICIPIO_CULTIVO_ANIO` | un municipio, cultivo y año | Hectáreas cosechadas según la EVA |
-| `REGISTRO_CARGAS` | una carga | Qué se cargó, de dónde, con qué parámetros y cuándo |
+| `GRILLA_CELDAS_5KM` | una celda de 5 km | Identificador, centro, departamento y municipio |
+| `BOSQUE_BASE_HANSEN_CELDA_5KM` | una celda | Bosque al empezar el análisis, según Hansen |
+| `ALERTAS_GFW_CELDA_5KM_MES` | una celda en un mes | Alertas de GFW, bosque remanente, tasa, rezagos |
+| `PERDIDA_COBERTURA_HANSEN_CELDA_5KM_ANIO` | una celda en un año | Pérdida de cobertura arbórea de Hansen |
+| `DEFORESTACION_IDEAM_CELDA_5KM_PERIODO` | una celda en un periodo | Deforestación oficial y demás clases de cambio del IDEAM |
+| `DETECCIONES_TEMPRANAS_IDEAM_CELDA_5KM_TRIMESTRE` | una celda en un trimestre | Detecciones tempranas del IDEAM |
+| `DEFORESTACION_CREDITO_PRODUCCION_MUNICIPIO_ANIO` | un municipio en un año | Deforestación, crédito, cultivos, ganado y atributos |
+| `ALERTAS_GFW_CREDITO_MUNICIPIO_MES` | un municipio en un mes | Alertas de GFW y crédito |
+| `AREA_COSECHADA_EVA_MUNICIPIO_CULTIVO_ANIO` | un municipio, cultivo y año | Hectáreas cosechadas según la EVA |
 
 Nada más queda en BigQuery: los notebooks 07 a 18 muestran sus resultados y no los guardan. Las tablas de paso
 entre los notebooks de modelos se borran al terminar la cadena (sección 4); el diccionario de datos las lista.
@@ -220,7 +218,7 @@ descarga del DANE para asignar el municipio de cada celda, y el 09 y el 12 los v
 mapas. Si quedó una tabla `MUNICIPIOS_LIMITES` de una versión anterior, el 01 la borra.
 
 Los nombres de las tablas van en mayúscula. En BigQuery importan las mayúsculas, así que en SQL hay que
-escribirlos igual (`PANEL_IDEAM`, no `panel_ideam`). En BigQuery, la pestaña de esquema de cada tabla muestra
+escribirlos igual (`DEFORESTACION_IDEAM_CELDA_5KM_PERIODO`, no `deforestacion_ideam_celda_5km_periodo`). En BigQuery, la pestaña de esquema de cada tabla muestra
 su descripción; las tablas de deforestación traen además la descripción de cada columna.
 
 ---
@@ -245,12 +243,12 @@ trabajo de grado:
 
 | Notebook | Resultado |
 |---|---|
-| 01 | `GRILLA` idéntica: las mismas 45.621 celdas, en el mismo orden, con el mismo departamento y municipio |
-| 02 | `BOSQUE_BASE` y `PANEL_HANSEN` idénticos |
-| 03 | `PANEL_DEFORESTACION_COLOMBIA` idéntico (3.524.664 filas), con las respuestas de la API de agosto de 2026. Una consulta nueva a la API también funcionó |
-| 04 | `PANEL_IDEAM` idéntico |
-| 05 | `PANEL_DTD` idéntico en los 25 trimestres del trabajo; el IDEAM ya publicó uno más, que entra solo |
-| 06 | `MUNICIPIO_ANIO`, `MUNICIPIO_MES` y `MUNICIPIO_CULTIVO_ANIO` idénticos, también con las tablas actuales del Observatorio |
+| 01 | `GRILLA_CELDAS_5KM` idéntica: las mismas 45.621 celdas, en el mismo orden, con el mismo departamento y municipio |
+| 02 | `BOSQUE_BASE_HANSEN_CELDA_5KM` y `PERDIDA_COBERTURA_HANSEN_CELDA_5KM_ANIO` idénticos |
+| 03 | `ALERTAS_GFW_CELDA_5KM_MES` idéntico (3.524.664 filas), con las respuestas de la API de agosto de 2026. Una consulta nueva a la API también funcionó |
+| 04 | `DEFORESTACION_IDEAM_CELDA_5KM_PERIODO` idéntico |
+| 05 | `DETECCIONES_TEMPRANAS_IDEAM_CELDA_5KM_TRIMESTRE` idéntico en los 25 trimestres del trabajo; el IDEAM ya publicó uno más, que entra solo |
+| 06 | `DEFORESTACION_CREDITO_PRODUCCION_MUNICIPIO_ANIO`, `ALERTAS_GFW_CREDITO_MUNICIPIO_MES` y `AREA_COSECHADA_EVA_MUNICIPIO_CULTIVO_ANIO` idénticos, también con las tablas actuales del Observatorio |
 | 07 a 11 | Corren de principio a fin sin errores |
 | 12 a 17 | La segmentación, los tres modelos, la comparación y el cruce con riesgo salen idénticos a la corrida del trabajo de grado del 20 de noviembre de 2026: métricas, predicciones, importancias, odds y la asignación de los 640 municipios a su segmento. Solo cambia la forma de algunas tablas: hiperparámetros guardados como texto, encabezados de dos niveles que quedan en uno, y la frase de reproducibilidad de la síntesis |
 | 18 | La demo corre de principio a fin, bajando de nuevo Hansen, el IDEAM, las escenas Landsat y GLAD-L |
